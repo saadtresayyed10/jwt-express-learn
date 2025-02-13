@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-// Extend Express's Request to include "user"
 export interface AuthRequest extends Request {
   user?: { id: string };
 }
@@ -10,21 +9,23 @@ export const authMiddleware = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   const token =
     req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
+    res.status(401).json({ message: "Unauthorized: No token provided" });
+    return;
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
     };
-    req.user = decoded; // Attach user to request
-    next(); // Move to next middleware/controller
+    req.user = decoded;
+    next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
+    res.status(401).json({ message: "Invalid token" });
+    return;
   }
 };
