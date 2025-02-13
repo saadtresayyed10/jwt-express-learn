@@ -40,6 +40,6 @@ export const loginUser = async (email: string, password: string) => {
 export const userProfile = async (userId: string) => {
   return await prisma.users.findUnique({
     where: { id: userId },
-    select: { email: true, name: true, phone: true },
+    select: { id: true, email: true, name: true, phone: true, createdAt: true },
   });
 };
